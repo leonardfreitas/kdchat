@@ -1,0 +1,51 @@
+{% extends "chatPage.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-sm-4"></div>
+
+    <div class="col-sm-4">
+
+        <form action="" method="POST">
+            {{ form.csrf_token }}
+            <div class="col-sm-12 text-center">
+                <b>{{ origin }}</b>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label>USERNAME</label>
+                    {{ form.username(class="form-control", placeholder="Kernel Panic") }}
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="">PASSWORD</label>
+                    {{ form.password(class="form-control", placeholder="PASS") }}
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-success btn-block">CRIAR</button>
+            </div>
+        </form>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+
+    </div>
+
+    <div class="col-sm-4"></div>
+
+
+</div>
+
+{% endblock %}

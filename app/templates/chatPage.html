@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>KDCHAT</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        body {
+            padding: 10px;
+        }
+        p {
+            word-wrap: break-word;
+            width: 20%;
+        }
+        table.table-width {
+            width: 300px;
+        }
+        div.jumb {
+            height: 150px;
+            padding-top: 5px;
+        }
+        div.card-msg {
+            background-color: #34495e;
+            border-radius: 5px;
+            padding: 10px;
+            color: #fff
+        }
+        div.msgbbl {
+            background-color: #16a085;
+            padding: 5px 10px;
+            border-radius: 2px;
+            margin-bottom: 5px;
+        }
+        #nomsg {
+            background-color: #c0392b;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+</head>
+<body>
+
+<div class="container-fluid">
+
+
+    <div class="row">
+        <div class="jumbotron jumb text-center col-sm-12">
+            <h1 class="display-3">KDCHAT</h1>
+            <p class="lead"></p>This was not a good pun. I'm so sorry!</p>
+        </div>
+    </div>
+
+    {% block content %}
+    <div class="row">
+
+        <div class="col-sm-8 card-msg">
+            <div id="nomsg">
+                <h1 id="text-nomsg">Sem menssagem</h1>
+            </div>
+            <div class="msg-wrapper">
+
+            </div>
+        </div>
+
+        <div class="col-sm-4 car-form">
+            <form class="sendMSG" action="" method="POST">
+
+                <div class="col-sm-12 text-center">
+                    <b>Sua menssagem</b>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label for="">USUÁRIO</label>
+                        <input class="username form-control" type="text" value="{{ current_user.username}}" disabled>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label for="">MENSSAGEM</label>
+                        <input class="message form-control" type="text" placeholder="MENSSAGEM">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-success btn-block">ENVIAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock %}
+
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+
+{% block script %}
+
+<script>
+
+    var socket = io.connect('http://localhost:5000/');
+
+    //broadcast
+    socket.on( 'connect', function() {
+        socket.emit( 'event', {
+            data : 'User Connected'
+        } )
+    } )
+
+    var form = $( 'form.sendMSG' ).on( 'submit', function( e ) {
+        e.preventDefault()
+        var user_name = $( 'input.username' ).val()
+        var message = $( 'input.message' ).val()
+        socket.emit( 'event', {
+            user : user_name,
+            msg : message
+        } )
+    } )
+
+    //get message
+    socket.on( 'response', function( msg ) {
+
+        if ( typeof msg.user !== 'undefined' ) {
+            $( 'h1#text-nomsg' ).remove()
+            $( 'div.msg-wrapper' ).append( '<div class="msgbbl"><b>'+msg.user+':</b> '+msg.msg+'</div>' )
+        }
+        console.log( msg )
+    } )
+
+</script>
+{% endblock %}
+
+</body>
+</html>

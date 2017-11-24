@@ -1,0 +1,124 @@
+{% extends "chatPage.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-sm-4"></div>
+
+    <div class="col-sm-4">
+
+        <input type="text" class="form-control text-center current_client" value="{{current_user.username}}" disabled><br>
+
+        <table class="table table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#ID</th>
+                <th scope="col">USUÁRIO</th>
+                <th scope="col">AÇÕES</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for user in users %}
+            {% if not user == current_user %}
+            <tr>
+                <th scope="row">{{user.id}}</th>
+                <td>{{user.username}}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="send_solicitation(this);" data-key="{{user.username}}">
+                        SOLICITAR
+                    </button>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+
+        </table>
+
+        <div class="row">
+          <h1 class="msg"></h1>
+        </div>
+
+
+    </div>
+
+    <div class="col-sm-4"></div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h6>SALAS</h6>
+        <table class="table-responsive table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#CHAVE COMPARTILHADA</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for room in roons %}
+            <tr>
+                <td><p><a href="#" onclick="open_com(this);" data-key="{{room.id}}">{{room.token_room}}</a></p></td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+    var socket = io.connect( 'http://localhost:5000/' );
+
+    //broadcast
+    socket.on( 'connect', function() {
+        socket.emit('connected')
+    } );
+
+
+    //send solicitation
+    var send_solicitation = function(element) {
+        var required_client = element.getAttribute("data-key");
+        var requesting_client = $('input.current_client').val();
+        socket.emit( 'solicitation', {
+            required_client: required_client,
+            requesting_client: requesting_client
+        } )
+    };
+
+    socket.on('msg', function (msg) {
+        if(msg['status'] == '200'){
+            $('h1.msg').append('<span>SOLICITAÇÃO ENVIADA</span>')
+        }
+    });
+
+    var open_com = function (element) {
+        var id = element.getAttribute("data-key");
+        socket.emit('conection', {
+            id: id
+        })
+    };
+
+    socket.on('redirect', function (data) {
+        window.location = data.url
+    })
+    
+    //get message
+    socket.on( 'response_solicitation', function( r ) {
+        console.log(r)
+    } )
+
+</script>
+{% endblock %}
